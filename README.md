@@ -22,7 +22,7 @@ Example:
 python3 structure_files.py ../data/results inf1 exam
 ```
 
-Example files are included
+The `submitted` folder will be written to the same folder as the script file is located.
 
 ### Arguments:
 usage: structure_files.py [-h] in_dir, test_name, jupyter_name (without extension)
