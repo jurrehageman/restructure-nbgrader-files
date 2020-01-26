@@ -13,7 +13,6 @@ import shutil
 import sys
 import argparse
 import itertools
-import warnings
 
 
 def args():
@@ -47,28 +46,29 @@ def recreate_dir_structure(in_dir, test_name, jupyter_name):
     subfolders = os.walk(in_dir)
     has_content = peek_generator_object(subfolders)
     if not has_content:
-        warnings.warn("Dir does not exist or no subfolders foud")
+        print("Dir does not exist or no subfolders found")
         return
     for subfolder in subfolders:
-        warning_flag = False
         st_num = subfolder[0].split('_')[-1]
-        print("Processing", st_num)
+        submission = subfolder[0]
+        print("Processing submission:", submission)
         if st_num in students:
-            warnings.warn("Double submission detected {}".format(st_num))
+            print("Double submission detected for student: {}. Folder {} skipped.".format(st_num, submission))
             continue
         else:
             students.append(st_num)
-        st_path = subfolder[0]
         files = subfolder[-1]
-        for item in files:
-            if item.endswith('.ipynb'):
-                file_name = item
-            else:
-                warnings.warn("Other filetype found: {}".format(item))
-                warning_flag = True
-        if warning_flag:
+        non_hidden_files = [i for i in files if not i.startswith(".")]
+        if len(non_hidden_files) > 1:
+            print("Multiple files detected for submission: {}. Folder {} skipped.".format(submission, submission))
             continue
-        src = os.path.join(st_path, file_name)
+        else:
+            if files[0].endswith('.ipynb'):
+                file_name = files[0]
+            else:
+                print("Other filetype ({}) found for submission: {}. Folder {} skipped.".format(files[0], submission, submission))
+                continue
+        src = os.path.join(submission, file_name)
         dst = os.path.join('submitted', st_num, test_name, dst_file_name)
         write_files(src, dst)
 
@@ -79,7 +79,7 @@ def main():
     test_name = comm_args.test_name
     jupyter_name = comm_args.jupyter_name
     recreate_dir_structure(in_dir, test_name, jupyter_name)
-    print("Done restructuring files")
+    print("Done...")
     return 0
 
 
